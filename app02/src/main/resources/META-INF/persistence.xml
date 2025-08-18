@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+    <!--    공장 이름 정해주기    -->
+    <persistence-unit name="abc">
+        <!--    엔티티 동작시 필수 코드    -->
+        <class>com.kh.app02.board.entity.BoardEntity</class>
+        <properties>
+            <!-- 필수 속성 : DB 연결정보 -->
+            <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
+            <property name="jakarta.persistence.jdbc.user" value="C##KH_JPA"/>
+            <property name="jakarta.persistence.jdbc.password" value="1234"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+
+            <!--            배치(Batch) 설정 : 쓰기지연/SQL 저장소 용량 | "배치(Batch)"는 "일괄 처리" 또는 "한 묶음"  -->
+            <property name="hibernate.jdbc.batch_size" value="50"/>
+
+            <!--            이거 없으면 테이블이랑 시퀀스 안만들어짐            -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+
+            <!--DB마다 SQL 조금씩 다르니까, hibernate 한테 어떤 DB 인지 알려주는 작업. 근데 Hibernate 버전 6 이상에서는 jdbc.url 보고 자동감지함.-->
+            <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle12cDialect"/> -->
+
+
+            <!-- 옵션 -->
+            <!--            Hibernate 가 실행하는 SQL 을 콘솔에 출력할지-->
+            <property name="hibernate.show_sql" value="true"/>
+
+            <!--            SQL 을 사람이 읽기 좋게 줄바꿈 + 들여쓰기 해서 출력. show_sql 이 켜져 있을 때만 의미있음            -->
+            <property name="hibernate.format_sql" value="true"/>
+
+            <!--            Hibernate 가 실행하는 SQL 에 주석을 달아줌. 나중에 insert 실행하고 콘솔창 보면 됨            -->
+            <property name="hibernate.use_sql_comments" value="true"/>
+
+            <!--            Hibernate 의 ID 생성 전략 매핑 방식을 JPA 표준 규칙에 맞게 쓸지 여부            -->
+            <property name="hibernate.id.new_generator_mappings" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
