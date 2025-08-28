@@ -28,4 +28,12 @@ public class MyUserDetails implements UserDetails {
     public String getUsername() {
         return vo.getUserId();
     }
+
+    public String getUserNick() {
+        return vo.getUserNick();
+    }
+
+    public String getUserRole() {
+        return vo.getUserRole();
+    }
 }

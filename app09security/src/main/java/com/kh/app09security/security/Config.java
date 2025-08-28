@@ -1,6 +1,7 @@
 package com.kh.app09security.security;
 
 import com.kh.app09security.filter.MyLoginFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +14,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class Config {
     private final AuthenticationConfiguration authenticationConfiguration; //스프링이 제공
+    private final MyJwtUtil myJwtUtil;
 
     @Bean //스프링이 제공한 AuthenticationConfiguration 통해서 인증매니저 반환
     public AuthenticationManager authenticationManager() throws Exception {
@@ -32,9 +36,8 @@ public class Config {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity hs) throws Exception {
-        
         //토큰 사용
-        //폼로그인에 함수 담기
+        //미사용으로 설정
         hs.formLogin(AbstractHttpConfigurer::disable);
         hs.csrf(AbstractHttpConfigurer::disable);
         hs.httpBasic(AbstractHttpConfigurer::disable);
@@ -54,10 +57,27 @@ public class Config {
         
         //필터 갈아끼우기 [   대체 필터 , 기존필터  ] - 스프링이 만들면 순환참조 무한굴레라 우리가 직접만듬
         AuthenticationManager authManager = authenticationManager(); //함수 호출해서 authManager 얻기
-        MyLoginFilter myLoginFilter = new MyLoginFilter(authManager);
+        MyLoginFilter myLoginFilter = new MyLoginFilter(authManager, myJwtUtil);
         myLoginFilter.setFilterProcessesUrl("/login"); //로그인경로에 대해 동작하게 설정 - 상대경로가 있을수없으므로 슬래시 필요
         hs.addFilterAt(myLoginFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
+        //CORS
+        hs.cors(
+                corsConfigurer -> corsConfigurer.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration conf = new CorsConfiguration();
+
+                        conf.addAllowedOrigin("*");
+                        conf.addAllowedMethod("*");
+                        conf.addAllowedHeader("*");
+                        conf.addExposedHeader("*");
+
+                        return conf;
+                    }
+                })
+        );
+
         return hs.build();
     }
 }

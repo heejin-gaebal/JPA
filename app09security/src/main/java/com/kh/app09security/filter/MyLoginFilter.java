@@ -1,5 +1,7 @@
 package com.kh.app09security.filter;
 
+import com.kh.app09security.security.MyJwtUtil;
+import com.kh.app09security.security.MyUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import java.io.IOException;
 //필터설정시 urlPattern 설정 필요
 public class MyLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
+    private final MyJwtUtil myJwtUtil;
 
     //로그인 시도
     @Override
@@ -28,12 +31,20 @@ public class MyLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     //로그인 성공
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("MyLoginFilter.successfulAuthentication");
-        String token = "{no:777, id:usr01, pwd:1234, role:ADMIN}";
-        response.addHeader("abc", token);
+//        String token = "{no:777, id:usr01, pwd:1234, role:ADMIN}";
+
+        MyUserDetails userDetails = (MyUserDetails) authResult.getPrincipal();
+        String userId = userDetails.getUsername();
+        String userNick = userDetails.getUserNick();
+        String userRole = userDetails.getUserRole();
+
+        String jwt = myJwtUtil.createJWT(userId, userNick, userRole);
+        response.addHeader("Authorization", "Bearer " + jwt);
+        //Bearer 로 토큰임을 명시해준다.
+        //토큰 꺼낼때는 패치함수에서 split 으로 배열쪼개서 토큰만 추출
     }
 
     //로그인 실패
