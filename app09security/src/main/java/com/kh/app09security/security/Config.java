@@ -1,5 +1,6 @@
 package com.kh.app09security.security;
 
+import com.kh.app09security.filter.MyJwtFilter;
 import com.kh.app09security.filter.MyLoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +52,14 @@ public class Config {
 //                .requestMatchers("api/test/user").authenticated()
                 //해당 url 요청 모두 허가
                 .requestMatchers("/login", "/join", "/home", "/", "/admin/login").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/test/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated() //모든 요청/인증
         );
-        
+
+        //필터 추가하기 (로그인 필터 앞에,,,)
+        MyJwtFilter myJwtFilter = new MyJwtFilter(myJwtUtil);
+        hs.addFilterBefore(myJwtFilter, MyLoginFilter.class);
+
         //필터 갈아끼우기 [   대체 필터 , 기존필터  ] - 스프링이 만들면 순환참조 무한굴레라 우리가 직접만듬
         AuthenticationManager authManager = authenticationManager(); //함수 호출해서 authManager 얻기
         MyLoginFilter myLoginFilter = new MyLoginFilter(authManager, myJwtUtil);
